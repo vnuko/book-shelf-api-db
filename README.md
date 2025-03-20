@@ -68,8 +68,12 @@ For more information about the file structure, refer to repository `data/` folde
 
 ### Query Parameters
 
+#### Authors
+
 - `GET /authors?page=1&limit=30&orderBy=id&orderDir=asc`
 - `GET /authors/search?query=king`
+
+#### Books
 
 - `GET /books?page=1&limit=30&orderBy=id&orderDir=asc`
 - `GET /books/search?query=shin`
