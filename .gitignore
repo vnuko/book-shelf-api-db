@@ -2,7 +2,7 @@
 node_modules/
 
 # DB
-db/database.sqlite
+src/db/database.sqlite
 
 # Build output (dist)
 dist/
