@@ -1,23 +1,23 @@
-# Book Shelf API
+# Book Shelf API DB
 
 ## Overview
 
-Book Shelf API is a lightweight, file-based backend service written in TypeScript for managing collectios of audio or text books. The service provides an easy-to-use API that scans a dedicated folder (`data/`) and builds an json response based on the folder structure. This eliminates the need for a database, allowing users to add new authors or books simply by copying files to the server.
+Book Shelf API is a lightweight backend service written in TypeScript for managing collections of audiobooks and text-based books. The service provides an easy-to-use API that scans a dedicated folder (`data/`) with authors and books and stores it a local SQLite database, eliminating the need for an external database.
 
 ## How It Works
 
-- The API crawls through the `data/` folder and builds it's own internal cache consisting of authors, books, and associated files.
-- The caching mechanism is used to improve performance by storing the scanned data in `cache/index.json`.
-- The API supports endpoints to fetch authors, books, and related details from generated cache.
+- The API scans the `data/` folder with your authors and books and builds an internal cache a local DB `(database.sqlite)`.
+- The database stores structured data for authors, books, and associated files, allowing efficient querying and filtering.
+- The API provides endpoints to fetch authors, books, and related details from the database.
 
-## Folder Structure
+## Source Folder Structure
 
 The `data/` folder must follow an opinionated structure:
 
-- **Authors**: Each author should have a folder named using a lowercase, dash-separated format (e.g., `stephen-king`).
-- **Books**: Inside each author folder, books are stored in their own folders, following the same naming convention (e.g., `it`, `the-shining`).
-- **Files**: Books can contain text files or supported audio formats: `.mp3`, `.wav`, `.ogg`, `.aac`.
-- **Metadata**: Each author and book can have an `info.js` file containing structured JSON data.
+- **Authors**: Each author should have a folder named using a lowercase, dash-separated format (e.g., stephen-king).
+- **Books**: Inside each author folder, books are stored in their own folders, following the same naming convention (e.g., it, the-shining etc.).
+- **Files**: Books can contain text files: `.pdf`, `.txt` and/or supported audio formats: `.mp3`, `.wav`, `.ogg`, `.aac`.
+- **Metadata**: Each author and book can have an `info.js` file containing additional structured JSON data.
 - **Images**: Authors and books can have associated images (supported formats: `.jpg`, `.jpeg`, `.png`, `.svg`).
 
 ## Example of the Metadata Files
@@ -52,17 +52,31 @@ For more information about the file structure, refer to repository `data/` folde
 
 ### Cache Handling
 
-- `GET /api/cache` → Scans the folder structure and builds `cache/index.json`.
+- `GET /api/cache`: Scans the folder structure and stores the data into the SQLite database.
 
-### Author Endpoints
+### Authors Endpoints
 
-- `GET /authors` → Returns all authors.
-- `GET /authors/:authorId` → Returns details of a specific author.
-- `GET /authors/:authorId/books` → Returns books by a specific author.
-- `GET /authors/:authorId/books/:bookId` → Returns details of a specific book.
+- `GET /authors`: Returns all authors.
+- `GET /authors/:authorId`: Returns details of a specific author.
+- `GET /authors/search`: Searches authors based on query parameters.
+
+### Books Endpoints
+
+- `GET /books`: Returns all books.
+- `GET /books/:bookId`: Returns details of a specific book.
+- `GET /books/search`: Searches books based on query parameters.
+
+### Query Parameters
+
+- `GET /authors?page=1&limit=30&orderBy=id&orderDir=asc`
+- `GET /authors/search?query=king`
+
+- `GET /books?page=1&limit=30&orderBy=id&orderDir=asc`
+- `GET /books/search?query=shin`
 
 ## Performance Considerations
 
-- This system is efficient for small-to-medium collections (e.g., up to ~50MB of chached JSON data). Don't use it for large datasets!
-- For larger datasets, a database based solution should be implemented.
-- The caching mechanism significantly reduces file system reads, improving response times, however there might me a memory impact for large datases, while they are being loded in memory.
+- This system is efficient for small-to-medium collections, ideally up to 500MB–1GB of SQLite database size. Beyond this, performance may degrade due to increased query times and memory usage.
+- SQLite performs well for datasets with up to a few million records, but for larger collections, a more scalable database (e.g., PostgreSQL, MySQL) should be considered.
+- Read performance is generally fast, but concurrent writes under heavy load may lead to contention since SQLite locks the entire database file for writes (better-sqlite-3 package)
+- Since SQLite stores data in a single file, disk I/O speed impacts performance, and using an SSD is recommended for better response times when having bigger collections of data.
