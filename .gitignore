@@ -1,0 +1,26 @@
+# Node modules
+node_modules/
+
+# DB
+db/database.sqlite
+
+# Build output (dist)
+dist/
+
+# TypeScript source maps
+*.tsbuildinfo
+
+# .env file to keep sensitive configuration
+.env
+
+# Logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Optional: ignore package lock files (not racking them)
+package-lock.json
+yarn.lock
