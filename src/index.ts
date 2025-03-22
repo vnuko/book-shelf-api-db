@@ -4,11 +4,14 @@ import dotenv from "dotenv";
 import cacheRoutes from "./routes/cache.Routes";
 import authorRoutes from "./routes/authorRoutes";
 import booksRoutes from "./routes/bookRoutes";
+import path from "path";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+app.use("/static", express.static(path.join(__dirname, "../data")));
 
 app.use(cors());
 

@@ -43,7 +43,7 @@ CREATE INDEX IF NOT EXISTS idx_authors_name ON authors(name);
 -- Indexes for books table
 CREATE INDEX IF NOT EXISTS idx_books_title ON books(title);
 CREATE INDEX IF NOT EXISTS idx_books_language ON books(language);
-CREATE INDEX IF NOT EXISTS idx_books_author ON books(author_id);  -- Index for author_id
+CREATE INDEX IF NOT EXISTS idx_books_author ON books(author_id);
 
 -- Indexes for files table
 CREATE INDEX IF NOT EXISTS idx_files_book ON asset_files(entity_id, entity_type, file_type);
