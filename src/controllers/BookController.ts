@@ -3,12 +3,20 @@ import bookService from "./../services/BookService";
 import { successResponse, errorResponse } from "./../utils/response";
 
 class BookController {
+  private static readonly PAGE = 1;
+  private static readonly LIMIT = 12;
+  private static readonly MAX_LIMIT = 50;
+  private static readonly ORDER_BY = "name";
+  private static readonly ORDER_DIR = "asc";
+
   getBooks(req: Request, res: Response): void {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      const orderBy = (req.query.orderBy as string) || "title";
-      const orderDir = (req.query.orderDir as string) || "ASC";
+      const page = parseInt(req.query.page as string) || BookController.PAGE;
+      let limit = parseInt(req.query.limit as string) || BookController.LIMIT;
+      limit = Math.min(limit, BookController.MAX_LIMIT);
+      const orderBy = (req.query.orderBy as string) || BookController.ORDER_BY;
+      const orderDir =
+        (req.query.orderDir as string) || BookController.ORDER_DIR;
 
       const books = bookService.getBooks({
         page,
