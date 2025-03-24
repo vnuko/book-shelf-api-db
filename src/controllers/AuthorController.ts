@@ -4,15 +4,16 @@ import AuthorService from "../services/AuthorService";
 
 class AuthorController {
   private static readonly PAGE = 1;
-  private static readonly LIMIT = 10;
+  private static readonly LIMIT = 12;
+  private static readonly MAX_LIMIT = 50;
   private static readonly ORDER_BY = "name";
   private static readonly ORDER_DIR = "asc";
 
   getAuthors(req: Request, res: Response): void {
     try {
       const page = parseInt(req.query.page as string) || AuthorController.PAGE;
-      const limit =
-        parseInt(req.query.limit as string) || AuthorController.LIMIT;
+      let limit = parseInt(req.query.limit as string) || AuthorController.LIMIT;
+      limit = Math.min(limit, AuthorController.MAX_LIMIT);
       const orderBy =
         (req.query.orderBy as string) || AuthorController.ORDER_BY;
       const orderDir =
