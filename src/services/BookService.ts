@@ -1,6 +1,7 @@
 import { Book } from "./../models/Book";
 import db from "./../db/db";
 import { Author } from "../models/Author";
+import { AssetFile } from "../models/AssetFile";
 
 interface BookQueryParams {
   page: number;
@@ -22,15 +23,24 @@ interface DbRowData {
   book_reader_age_group: string;
   book_language: string;
   book_description: string;
-  image_id?: number;
-  image_file_url?: string;
-  image_name?: string;
+  book_image?: string;
   author_book_count?: number;
   author_id?: number;
   author_name?: string;
   author_dob?: string;
   author_bio?: string;
   author_nationality?: string;
+  audio_count?: number;
+  documents_count?: number;
+  image_id?: number;
+  image_file_url?: string;
+  image_name?: string;
+  audio_id?: number;
+  audio_file_url?: string;
+  audio_name?: string;
+  document_id?: number;
+  document_file_url?: string;
+  document_name?: string;
 }
 
 class BookService {
@@ -44,6 +54,8 @@ class BookService {
       readerAgeGroup: row.book_reader_age_group,
       language: row.book_language,
       description: row.book_description,
+      audioCount: row.audio_count,
+      documentsCount: row.documents_count,
     });
 
     if (row.author_id) {
@@ -59,6 +71,30 @@ class BookService {
     }
 
     return book;
+  }
+
+  private mapToImages(row: DbRowData): AssetFile {
+    return new AssetFile({
+      id: row.image_id,
+      fileUrl: row.image_file_url,
+      name: row.image_name,
+    });
+  }
+
+  private mapToAudio(row: DbRowData): AssetFile {
+    return new AssetFile({
+      id: row.audio_id,
+      fileUrl: row.audio_file_url,
+      name: row.audio_name,
+    });
+  }
+
+  private mapToDocument(row: DbRowData): AssetFile {
+    return new AssetFile({
+      id: row.document_id,
+      fileUrl: row.document_file_url,
+      name: row.document_name,
+    });
   }
 
   private fetchBooks(query: string, params: any): DbRowData[] {
@@ -87,7 +123,26 @@ class BookService {
         authors.name AS author_name, 
         authors.dob AS author_dob, 
         authors.bio AS author_bio, 
-        authors.nationality AS author_nationality 
+        authors.nationality AS author_nationality,
+        (SELECT asset_files.file_url 
+          FROM asset_files 
+          WHERE asset_files.entity_id = books.id 
+            AND asset_files.entity_type = 'book' 
+            AND asset_files.file_type = 'image' 
+          ORDER BY asset_files.id ASC LIMIT 1
+        ) AS book_image,
+        (SELECT COUNT(*) 
+          FROM asset_files 
+          WHERE asset_files.entity_id = books.id 
+            AND asset_files.entity_type = 'book'
+    		AND asset_files.file_type = 'audio'
+        ) AS audio_count,
+        (SELECT COUNT(*) 
+          FROM asset_files 
+          WHERE asset_files.entity_id = books.id 
+            AND asset_files.entity_type = 'book'
+    		AND asset_files.file_type = 'text'
+        ) AS documents_count
       FROM books
       LEFT JOIN authors ON books.author_id = authors.id
       ORDER BY ${orderField} ${orderDirection}
@@ -114,9 +169,27 @@ class BookService {
         authors.name AS author_name, 
         authors.dob AS author_dob, 
         authors.bio AS author_bio, 
-        authors.nationality AS author_nationality 
+        authors.nationality AS author_nationality, 
+        image_files.id AS image_id,
+        image_files.file_url AS image_file_url,
+        image_files.name AS image_name,
+        audio_files.id AS audio_id,
+        audio_files.file_url AS audio_file_url,
+        audio_files.name AS audio_name,
+        documents_files.id AS document_id,
+        documents_files.file_url AS document_file_url,
+        documents_files.name AS document_name
       FROM books
       LEFT JOIN authors ON books.author_id = authors.id
+      LEFT JOIN asset_files AS image_files ON image_files.entity_id = books.id 
+        AND image_files.entity_type = 'book' 
+        AND image_files.file_type = 'image'
+      LEFT JOIN asset_files AS audio_files ON audio_files.entity_id = books.id
+        AND audio_files.entity_type = 'book' 
+        AND audio_files.file_type = 'audio'
+      LEFT JOIN asset_files AS documents_files ON documents_files.entity_id = books.id
+        AND documents_files.entity_type = 'book' 
+        AND documents_files.file_type = 'text'
       WHERE books.id = @bookId
     `;
 
@@ -125,7 +198,19 @@ class BookService {
     if (rows.length === 0) return null;
 
     const firstRow = rows[0];
-    return this.mapToBook(firstRow);
+    const book = this.mapToBook(firstRow);
+
+    const images = rows.filter((row) => row.image_id).map(this.mapToImages);
+    const audio = rows.filter((row) => row.audio_id).map(this.mapToAudio);
+    const documents = rows
+      .filter((row) => row.document_id)
+      .map(this.mapToDocument);
+
+    book.images = images;
+    book.audio = audio;
+    book.documents = documents;
+
+    return book;
   }
 
   searchBooks(params: BookSearchParams): Book[] {
@@ -140,7 +225,29 @@ class BookService {
         books.language AS book_language, 
         books.description AS book_description, 
         authors.id AS author_id, 
-        authors.name AS author_name
+        authors.name AS author_name, 
+        authors.dob AS author_dob, 
+        authors.bio AS author_bio, 
+        authors.nationality AS author_nationality,
+        (SELECT asset_files.file_url 
+          FROM asset_files 
+          WHERE asset_files.entity_id = books.id 
+            AND asset_files.entity_type = 'book' 
+            AND asset_files.file_type = 'image' 
+          ORDER BY asset_files.id ASC LIMIT 1
+        ) AS book_image,
+        (SELECT COUNT(*) 
+          FROM asset_files 
+          WHERE asset_files.entity_id = books.id 
+            AND asset_files.entity_type = 'book'
+    		AND asset_files.file_type = 'audio'
+        ) AS audio_count,
+        (SELECT COUNT(*) 
+          FROM asset_files 
+          WHERE asset_files.entity_id = books.id 
+            AND asset_files.entity_type = 'book'
+    		AND asset_files.file_type = 'text'
+        ) AS documents_count
       FROM books
       LEFT JOIN authors ON books.author_id = authors.id
       WHERE 1=1
@@ -156,20 +263,9 @@ class BookService {
 
     const rawBooks = this.fetchBooks(sql, queryParams);
 
-    return rawBooks.map(
-      (row) =>
-        new Book({
-          id: row.book_id,
-          title: row.book_title,
-          subtitle: row.book_subtitle,
-          series: row.book_series,
-          year: row.book_year,
-          readerAgeGroup: row.book_reader_age_group,
-          language: row.book_language,
-          description: row.book_description,
-          authors: [],
-        })
-    );
+    console.log(rawBooks);
+
+    return rawBooks.map(this.mapToBook);
   }
 }
 

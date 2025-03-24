@@ -14,7 +14,9 @@ export interface BookProps {
   description?: string;
   images?: AssetFile[];
   audio?: AssetFile[];
+  audioCount?: number;
   documents?: AssetFile[];
+  documentsCount?: number;
   authors?: Author[];
 }
 
@@ -64,13 +66,30 @@ export class Book {
   get images(): AssetFile[] {
     return this.props.images ?? [];
   }
+  set images(images: AssetFile[] | undefined) {
+    this.props.images = images;
+  }
 
   get audio(): AssetFile[] {
     return this.props.audio ?? [];
   }
+  set audio(audio: AssetFile[] | undefined) {
+    this.props.audio = audio;
+  }
+
+  get audioCount(): number {
+    return this.props.audioCount ?? 0;
+  }
 
   get documents(): AssetFile[] {
     return this.props.documents ?? [];
+  }
+  set documents(documents: AssetFile[] | undefined) {
+    this.props.documents = documents;
+  }
+
+  get documentsCount(): number {
+    return this.props.documentsCount ?? 0;
   }
 
   get authors(): Author[] {
@@ -84,7 +103,7 @@ export class Book {
   toJSON(includeAuthors: boolean = true) {
     const result: any = {
       id: this.id,
-      authorId: this.authorId, // Include authorId
+      authorId: this.authorId,
       title: this.title,
       subtitle: this.subtitle,
       series: this.series,
@@ -92,8 +111,10 @@ export class Book {
       readerAgeGroup: this.readerAgeGroup,
       language: this.language,
       description: this.description,
+      audioCount: this.audioCount,
+      documentsCount: this.documentsCount,
       authors: includeAuthors
-        ? this.authors.map((author) => author.toJSON(false)) // Prevent deep nesting
+        ? this.authors.map((author) => author.toJSON(false))
         : undefined,
     };
 
@@ -139,12 +160,10 @@ export class Book {
       description: this.description,
     });
 
-    // If the book was newly inserted, set its ID
     if (!this.id) {
       this.props.id = result.lastInsertRowid as number;
     }
 
-    // have images?
     if (Array.isArray(this.images) && this.images.length > 0) {
       this.images.forEach((image) => {
         if (image) {
@@ -154,7 +173,6 @@ export class Book {
       });
     }
 
-    // have audio?
     if (Array.isArray(this.audio) && this.audio.length > 0) {
       this.audio.forEach((a) => {
         if (a) {
@@ -164,7 +182,6 @@ export class Book {
       });
     }
 
-    // have documents?
     if (Array.isArray(this.documents) && this.documents.length > 0) {
       this.documents.forEach((document) => {
         if (document) {

@@ -56,7 +56,6 @@ class BookController {
   searchBooks(req: Request, res: Response): void {
     try {
       const query = req.query.query as string;
-
       const books = bookService.searchBooks({
         query,
       });
