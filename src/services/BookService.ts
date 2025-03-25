@@ -70,6 +70,14 @@ class BookService {
       ];
     }
 
+    if (row.book_image) {
+      book.images = [
+        new AssetFile({
+          fileUrl: row.book_image,
+        }),
+      ];
+    }
+
     return book;
   }
 
