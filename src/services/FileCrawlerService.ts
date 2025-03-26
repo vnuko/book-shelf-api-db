@@ -74,7 +74,12 @@ class FileCrawlerService {
       );
 
       books.push(
-        new Book({ ...bookInfo, images: bookImages, audio: bookAudio })
+        new Book({
+          ...bookInfo,
+          images: bookImages,
+          audio: bookAudio,
+          documents: bookDocuments,
+        })
       );
     }
 

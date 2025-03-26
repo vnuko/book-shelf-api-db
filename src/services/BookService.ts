@@ -208,15 +208,28 @@ class BookService {
     const firstRow = rows[0];
     const book = this.mapToBook(firstRow);
 
-    const images = rows.filter((row) => row.image_id).map(this.mapToImages);
-    const audio = rows.filter((row) => row.audio_id).map(this.mapToAudio);
-    const documents = rows
-      .filter((row) => row.document_id)
-      .map(this.mapToDocument);
+    const imageMap = new Map<number, any>();
+    const audioMap = new Map<number, any>();
+    const documentMap = new Map<number, any>();
 
-    book.images = images;
-    book.audio = audio;
-    book.documents = documents;
+    rows.forEach((row) => {
+      if (row.image_id && !imageMap.has(row.image_id)) {
+        imageMap.set(row.image_id, this.mapToImages(row));
+      }
+      if (row.audio_id && !audioMap.has(row.audio_id)) {
+        audioMap.set(row.audio_id, this.mapToAudio(row));
+      }
+      if (row.document_id && !documentMap.has(row.document_id)) {
+        documentMap.set(row.document_id, this.mapToDocument(row));
+      }
+    });
+
+    book.audioCount = audioMap.size;
+    book.documentsCount = documentMap.size;
+
+    book.images = Array.from(imageMap.values());
+    book.audio = Array.from(audioMap.values());
+    book.documents = Array.from(documentMap.values());
 
     return book;
   }

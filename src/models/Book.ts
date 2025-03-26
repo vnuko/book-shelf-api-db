@@ -80,6 +80,9 @@ export class Book {
   get audioCount(): number {
     return this.props.audioCount ?? 0;
   }
+  set audioCount(audioCount: number) {
+    this.props.audioCount = audioCount;
+  }
 
   get documents(): AssetFile[] {
     return this.props.documents ?? [];
@@ -90,6 +93,9 @@ export class Book {
 
   get documentsCount(): number {
     return this.props.documentsCount ?? 0;
+  }
+  set documentsCount(documentsCount: number) {
+    this.props.documentsCount = documentsCount;
   }
 
   get authors(): Author[] {
