@@ -9,6 +9,8 @@ export interface AssetFileProps {
   fileUrl?: string;
   fileType?: AssetFileType;
   name?: string;
+  fileSize?: number;
+  duration?: number;
 }
 
 export class AssetFile {
@@ -78,6 +80,14 @@ export class AssetFile {
     this.props.fileType = fileType;
   }
 
+  get fileSize() {
+    return this.props.fileSize;
+  }
+
+  get duration() {
+    return this.props.duration;
+  }
+
   toJSON() {
     return {
       id: this.id,
@@ -86,6 +96,8 @@ export class AssetFile {
       fileUrl: this.fileUrl,
       fileType: this.fileType,
       name: this.name,
+      fileSize: this.fileSize,
+      duration: this.duration,
     };
   }
 
@@ -97,19 +109,23 @@ export class AssetFile {
       fileUrl: raw.file_url,
       fileType: raw.file_type,
       name: raw.name,
+      fileSize: raw.file_size,
+      duration: raw.duration,
     });
   }
 
   save(): AssetFile {
     const query = db.prepare(`
-      INSERT INTO asset_files (id, entity_id, entity_type, file_url, file_type, name)
-      VALUES (@id, @entityId, @entityType, @fileUrl,  @fileType, @name)
+      INSERT INTO asset_files (id, entity_id, entity_type, file_url, file_type, name, file_size, duration)
+      VALUES (@id, @entityId, @entityType, @fileUrl, @fileType, @name, @fileSize, @duration)
       ON CONFLICT(id) DO UPDATE SET 
         entity_id = excluded.entity_id,
         entity_type = excluded.entity_type,
         file_url = excluded.file_url,
         file_type = excluded.file_type,
-        name = excluded.name;
+        name = excluded.name,
+        file_size = excluded.file_size,
+        duration = excluded.duration
     `);
 
     const result = query.run({
@@ -119,9 +135,11 @@ export class AssetFile {
       fileUrl: this.fileUrl,
       fileType: this.fileType,
       name: this.name,
+      fileSize: this.fileSize,
+      duration: this.duration,
     });
 
-    if (!this.id) {
+    if (!this.id && result.lastInsertRowid) {
       this.props.id = result.lastInsertRowid as number;
     }
 

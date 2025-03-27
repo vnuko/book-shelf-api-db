@@ -38,9 +38,12 @@ interface DbRowData {
   audio_id?: number;
   audio_file_url?: string;
   audio_name?: string;
+  audio_file_size?: number;
+  audio_duration?: number;
   document_id?: number;
   document_file_url?: string;
   document_name?: string;
+  document_file_size?: number;
 }
 
 class BookService {
@@ -94,6 +97,8 @@ class BookService {
       id: row.audio_id,
       fileUrl: row.audio_file_url,
       name: row.audio_name,
+      fileSize: row.audio_file_size,
+      duration: row.audio_duration,
     });
   }
 
@@ -102,6 +107,7 @@ class BookService {
       id: row.document_id,
       fileUrl: row.document_file_url,
       name: row.document_name,
+      fileSize: row.document_file_size,
     });
   }
 
@@ -184,9 +190,12 @@ class BookService {
         audio_files.id AS audio_id,
         audio_files.file_url AS audio_file_url,
         audio_files.name AS audio_name,
+        audio_files.file_size AS audio_file_size,
+        audio_files.duration AS audio_duration,
         documents_files.id AS document_id,
         documents_files.file_url AS document_file_url,
-        documents_files.name AS document_name
+        documents_files.name AS document_name,
+        documents_files.file_size AS document_file_size
       FROM books
       LEFT JOIN authors ON books.author_id = authors.id
       LEFT JOIN asset_files AS image_files ON image_files.entity_id = books.id 

@@ -34,7 +34,9 @@ CREATE TABLE IF NOT EXISTS asset_files (
     entity_type TEXT CHECK (entity_type IN ('author', 'book')),
     file_url TEXT NOT NULL,
     file_type TEXT CHECK (file_type IN ('image', 'audio', 'text')),
-    name TEXT
+    name TEXT,
+    file_size number,
+    duration REAL
 );
 
 -- Index for authors table

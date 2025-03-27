@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import mm from "music-metadata";
 import path from "path";
 import { readJson, logAndRethrow, logOnly } from "../utils/helpers";
 import { Book, BookProps } from "../models/Book";
@@ -182,26 +183,68 @@ class FileCrawlerService {
     fileType: AssetFileType
   ): Promise<AssetFile[]> {
     try {
-      let relativePath = path.relative(DATA_DIR, directoryPath);
-      relativePath = relativePath.split(path.sep).join("/");
+      let relativePath = path
+        .relative(DATA_DIR, directoryPath)
+        .split(path.sep)
+        .join("/");
 
-      const files = await fs.readdir(directoryPath);
+      const allFiles = await fs.readdir(directoryPath);
 
-      return files
-        .filter((file) =>
-          allowedExtensions.some((ext) => file.toLowerCase().endsWith(ext))
-        )
-        .map((file) => {
-          return new AssetFile({
+      const matchingFiles = allFiles.filter((file) =>
+        allowedExtensions.some((ext) => file.toLowerCase().endsWith(ext))
+      );
+
+      const assetFiles: AssetFile[] = [];
+      for (const file of matchingFiles) {
+        const fullPath = path.join(directoryPath, file);
+        const { fileSize, duration } = await this.getFileMetadata(
+          fullPath,
+          fileType
+        );
+
+        assetFiles.push(
+          new AssetFile({
             entityType: type,
-            fileUrl: `/static/${relativePath}/${file}`.split("//").join("/"),
+            fileUrl: `/static/${relativePath}/${file}`.replace("//", "/"),
             fileType: fileType,
             name: file,
-          });
-        });
+            fileSize: fileSize,
+            duration: duration,
+          })
+        );
+      }
+
+      return assetFiles;
     } catch (err) {
       logOnly(`Failed to read files from: ${directoryPath}`, err);
       return [];
+    }
+  }
+
+  private async getFileMetadata(
+    filePath: string,
+    fileType: AssetFileType
+  ): Promise<{ fileSize: number; duration: number | undefined }> {
+    try {
+      const stats = await fs.stat(filePath);
+      const fileSize = stats.size;
+
+      let duration: number | undefined = undefined;
+      if (fileType === AssetFileType.AUDIO) {
+        try {
+          const metadata = await mm.parseFile(filePath);
+          duration = metadata.format.duration
+            ? metadata.format.duration
+            : undefined;
+        } catch (err) {
+          logOnly(`Error getting duration`, err);
+        }
+      }
+
+      return { fileSize, duration };
+    } catch (err) {
+      logOnly(`Error getting file metadata`, err);
+      return { fileSize: 0, duration: undefined };
     }
   }
 }
