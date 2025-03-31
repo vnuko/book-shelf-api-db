@@ -78,6 +78,32 @@ For more information about the file structure, refer to repository `data/` folde
 - `GET /books?page=1&limit=30&orderBy=id&orderDir=asc`
 - `GET /books/search?query=shin`
 
+## Accessing Static Files
+
+The API allows direct access to static files, including text documents and audio files, stored in the `data/` directory. These files can be accessed via the `/static/` URL endpoint.
+
+### Static File URL Structure
+
+The URL for accessing static files follows this pattern:
+
+```sh
+/static/{author-name}/{book-title}/{file-name}
+```
+
+### Examples
+
+#### Accessing an Audio File
+
+```sh
+GET /static/isaac-asimov/i-robot/i_robot_track_1.mp3
+```
+
+#### Accessing a PDF Document
+
+```sh
+GET /static/isaac-asimov/i-robot/i_robot_dummy.pdf
+```
+
 ## Performance Considerations
 
 - This system is efficient for small-to-medium collections, ideally up to 500MB–1GB of SQLite database size. Beyond this, performance may degrade due to increased query times and memory usage.
