@@ -33,7 +33,7 @@ The `data/` folder must follow an opinionated structure:
 }
 ```
 
-### Book Info (data/stephen-king/the-shining/info.js)
+### Book Info (`data/stephen-king/the-shining/info.js`)
 
 ```json
 {
@@ -87,6 +87,7 @@ The API allows direct access to static files, including text documents and audio
 The URL for accessing static files follows this pattern:
 
 ```sh
+/static/{author-name}/{file-name}
 /static/{author-name}/{book-title}/{file-name}
 ```
 
