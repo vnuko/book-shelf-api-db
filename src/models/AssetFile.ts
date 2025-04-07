@@ -9,6 +9,7 @@ export interface AssetFileProps {
   fileUrl?: string;
   fileType?: AssetFileType;
   name?: string;
+  language?: string;
   fileSize?: number;
   duration?: number;
 }
@@ -70,6 +71,10 @@ export class AssetFile {
     return this.props.name;
   }
 
+  get language() {
+    return this.props.language;
+  }
+
   set entityType(entityType: EntityType | undefined) {
     this.validateEntityType({ ...this.props, entityType });
     this.props.entityType = entityType;
@@ -96,6 +101,7 @@ export class AssetFile {
       fileUrl: this.fileUrl,
       fileType: this.fileType,
       name: this.name,
+      language: this.language,
       fileSize: this.fileSize,
       duration: this.duration,
     };
@@ -109,6 +115,7 @@ export class AssetFile {
       fileUrl: raw.file_url,
       fileType: raw.file_type,
       name: raw.name,
+      language: raw.language,
       fileSize: raw.file_size,
       duration: raw.duration,
     });
@@ -116,14 +123,15 @@ export class AssetFile {
 
   save(): AssetFile {
     const query = db.prepare(`
-      INSERT INTO asset_files (id, entity_id, entity_type, file_url, file_type, name, file_size, duration)
-      VALUES (@id, @entityId, @entityType, @fileUrl, @fileType, @name, @fileSize, @duration)
+      INSERT INTO asset_files (id, entity_id, entity_type, file_url, file_type, name, language, file_size, duration)
+      VALUES (@id, @entityId, @entityType, @fileUrl, @fileType, @name, @language, @fileSize, @duration)
       ON CONFLICT(id) DO UPDATE SET 
         entity_id = excluded.entity_id,
         entity_type = excluded.entity_type,
         file_url = excluded.file_url,
         file_type = excluded.file_type,
         name = excluded.name,
+        language = excluded.language,
         file_size = excluded.file_size,
         duration = excluded.duration
     `);
@@ -135,6 +143,7 @@ export class AssetFile {
       fileUrl: this.fileUrl,
       fileType: this.fileType,
       name: this.name,
+      language: this.language,
       fileSize: this.fileSize,
       duration: this.duration,
     });

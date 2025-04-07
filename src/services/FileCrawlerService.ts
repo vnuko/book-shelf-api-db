@@ -1,7 +1,12 @@
 import fs from "fs/promises";
 import mm from "music-metadata";
 import path from "path";
-import { readJson, logAndRethrow, logOnly } from "../utils/helpers";
+import {
+  readJson,
+  logAndRethrow,
+  logOnly,
+  getFileLanguage,
+} from "../utils/helpers";
 import { Book, BookProps } from "../models/Book";
 import { Author, AuthorProps } from "../models/Author";
 import { DATA_DIR, INFO_FILE } from "../config/config";
@@ -202,12 +207,15 @@ class FileCrawlerService {
           fileType
         );
 
+        const language = await getFileLanguage(fullPath, fileType);
+
         assetFiles.push(
           new AssetFile({
             entityType: type,
             fileUrl: `/static/${relativePath}/${file}`.replace("//", "/"),
             fileType: fileType,
             name: file,
+            language: language,
             fileSize: fileSize,
             duration: duration,
           })

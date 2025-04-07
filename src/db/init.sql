@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS books (
     series TEXT,
     year INTEGER,
     reader_age_group TEXT,
-    language TEXT,
     description TEXT,
     FOREIGN KEY (author_id) REFERENCES authors(id) ON DELETE CASCADE
 );
@@ -35,6 +34,7 @@ CREATE TABLE IF NOT EXISTS asset_files (
     file_url TEXT NOT NULL,
     file_type TEXT CHECK (file_type IN ('image', 'audio', 'text')),
     name TEXT,
+    language TEXT,
     file_size number,
     duration REAL
 );
@@ -44,7 +44,6 @@ CREATE INDEX IF NOT EXISTS idx_authors_name ON authors(name);
 
 -- Indexes for books table
 CREATE INDEX IF NOT EXISTS idx_books_title ON books(title);
-CREATE INDEX IF NOT EXISTS idx_books_language ON books(language);
 CREATE INDEX IF NOT EXISTS idx_books_author ON books(author_id);
 
 -- Indexes for files table

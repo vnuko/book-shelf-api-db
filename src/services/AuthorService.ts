@@ -68,7 +68,6 @@ class AuthorService {
       series: row.book_series,
       year: row.book_year,
       readerAgeGroup: row.book_reader_age_group,
-      language: row.book_language,
       description: row.book_description,
       audioCount: row.audio_count,
       documentsCount: row.document_count,
@@ -136,8 +135,7 @@ class AuthorService {
         books.subtitle AS book_subtitle, 
         books.series AS book_series, 
         books.year AS book_year, 
-        books.reader_age_group AS book_reader_age_group, 
-        books.language AS book_language,
+        books.reader_age_group AS book_reader_age_group,
         books.description AS book_description,
         (SELECT COUNT(*) 
           FROM asset_files 

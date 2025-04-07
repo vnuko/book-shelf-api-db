@@ -40,6 +40,7 @@ interface DbRowData {
   audio_name?: string;
   audio_file_size?: number;
   audio_duration?: number;
+  audio_language?: string;
   document_id?: number;
   document_file_url?: string;
   document_name?: string;
@@ -55,7 +56,6 @@ class BookService {
       series: row.book_series,
       year: row.book_year,
       readerAgeGroup: row.book_reader_age_group,
-      language: row.book_language,
       description: row.book_description,
       audioCount: row.audio_count,
       documentsCount: row.documents_count,
@@ -99,6 +99,7 @@ class BookService {
       name: row.audio_name,
       fileSize: row.audio_file_size,
       duration: row.audio_duration,
+      language: row.audio_language,
     });
   }
 
@@ -108,6 +109,7 @@ class BookService {
       fileUrl: row.document_file_url,
       name: row.document_name,
       fileSize: row.document_file_size,
+      language: row.audio_language,
     });
   }
 
@@ -119,7 +121,7 @@ class BookService {
   getBooks(params: BookQueryParams): Book[] {
     const { page, limit, orderBy, orderDir } = params;
     const offset = (page - 1) * limit;
-    const validOrderFields = ["title", "year", "reader_age_group", "language"];
+    const validOrderFields = ["title", "year", "reader_age_group"];
     const orderField = validOrderFields.includes(orderBy) ? orderBy : "title";
     const orderDirection = orderDir.toLowerCase() === "desc" ? "DESC" : "ASC";
 
@@ -130,8 +132,7 @@ class BookService {
         books.subtitle AS book_subtitle, 
         books.series AS book_series, 
         books.year AS book_year, 
-        books.reader_age_group AS book_reader_age_group, 
-        books.language AS book_language, 
+        books.reader_age_group AS book_reader_age_group,  
         books.description AS book_description, 
         authors.id AS author_id, 
         authors.name AS author_name, 
@@ -176,8 +177,7 @@ class BookService {
         books.subtitle AS book_subtitle, 
         books.series AS book_series, 
         books.year AS book_year, 
-        books.reader_age_group AS book_reader_age_group, 
-        books.language AS book_language, 
+        books.reader_age_group AS book_reader_age_group,  
         books.description AS book_description, 
         authors.id AS author_id, 
         authors.name AS author_name, 
@@ -192,6 +192,7 @@ class BookService {
         audio_files.name AS audio_name,
         audio_files.file_size AS audio_file_size,
         audio_files.duration AS audio_duration,
+        audio_files.language AS audio_language,
         documents_files.id AS document_id,
         documents_files.file_url AS document_file_url,
         documents_files.name AS document_name,
@@ -251,8 +252,7 @@ class BookService {
         books.subtitle AS book_subtitle, 
         books.series AS book_series, 
         books.year AS book_year, 
-        books.reader_age_group AS book_reader_age_group, 
-        books.language AS book_language, 
+        books.reader_age_group AS book_reader_age_group,
         books.description AS book_description, 
         authors.id AS author_id, 
         authors.name AS author_name, 

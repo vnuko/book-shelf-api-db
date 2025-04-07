@@ -10,7 +10,7 @@ export interface BookProps {
   series?: string;
   year?: number;
   readerAgeGroup?: string;
-  language?: string;
+
   description?: string;
   images?: AssetFile[];
   audio?: AssetFile[];
@@ -53,10 +53,6 @@ export class Book {
 
   get readerAgeGroup() {
     return this.props.readerAgeGroup ?? "";
-  }
-
-  get language() {
-    return this.props.language ?? "";
   }
 
   get description() {
@@ -115,7 +111,6 @@ export class Book {
       series: this.series,
       year: this.year,
       readerAgeGroup: this.readerAgeGroup,
-      language: this.language,
       description: this.description,
       audioCount: this.audioCount,
       documentsCount: this.documentsCount,
@@ -141,8 +136,8 @@ export class Book {
 
   public save(): Book {
     const query = db.prepare(`
-      INSERT INTO books (id, author_id, title, subtitle, series, year, reader_age_group, language, description)
-      VALUES (@id, @authorId, @title, @subtitle, @series, @year, @readerAgeGroup, @language, @description)
+      INSERT INTO books (id, author_id, title, subtitle, series, year, reader_age_group, description)
+      VALUES (@id, @authorId, @title, @subtitle, @series, @year, @readerAgeGroup, @description)
       ON CONFLICT(id) DO UPDATE SET 
         author_id = excluded.author_id,
         title = excluded.title, 
@@ -150,7 +145,6 @@ export class Book {
         series = excluded.series,
         year = excluded.year,
         reader_age_group = excluded.reader_age_group,
-        language = excluded.language,
         description = excluded.description;
     `);
 
@@ -162,7 +156,6 @@ export class Book {
       series: this.series,
       year: this.year,
       readerAgeGroup: this.readerAgeGroup,
-      language: this.language,
       description: this.description,
     });
 
@@ -209,7 +202,6 @@ export class Book {
       series: raw.series,
       year: raw.year,
       readerAgeGroup: raw.reader_age_group,
-      language: raw.language,
       description: raw.description,
       images: [],
       audio: [],
