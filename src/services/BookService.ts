@@ -99,7 +99,7 @@ class BookService {
       name: row.audio_name,
       fileSize: row.audio_file_size,
       duration: row.audio_duration,
-      language: row.audio_language,
+      language: row.audio_language ?? undefined,
     });
   }
 
@@ -109,7 +109,7 @@ class BookService {
       fileUrl: row.document_file_url,
       name: row.document_name,
       fileSize: row.document_file_size,
-      language: row.audio_language,
+      language: row.audio_language ?? undefined,
     });
   }
 
