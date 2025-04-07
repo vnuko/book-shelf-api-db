@@ -10,7 +10,7 @@ import { AssetFileType } from "../enums/AssetFileType";
 import { EntityType } from "../enums/EntityType";
 
 class FileCrawlerService {
-  public async crawl(): Promise<void> {
+  public async crawl(): Promise<Author[]> {
     try {
       await fs.access(DATA_DIR);
     } catch (err: unknown) {
@@ -20,7 +20,7 @@ class FileCrawlerService {
       );
     }
 
-    await this.crawlAuthors(DATA_DIR);
+    return await this.crawlAuthors(DATA_DIR);
   }
 
   private async crawlAuthors(dataPath: string): Promise<Author[]> {
@@ -46,6 +46,7 @@ class FileCrawlerService {
       });
 
       author.save();
+      authors.push(author);
     }
 
     return authors;
@@ -112,8 +113,7 @@ class FileCrawlerService {
     try {
       return await readJson(path.join(authorPath, INFO_FILE));
     } catch (err) {
-      logOnly(`Failed to read author info from: ${authorPath}`, err);
-      return {};
+      logAndRethrow(`Failed to read author info from: ${authorPath}`, err);
     }
   }
 

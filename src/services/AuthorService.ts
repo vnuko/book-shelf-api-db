@@ -34,6 +34,8 @@ interface DbRowData {
   image_file_url?: string;
   image_name?: string;
   author_book_count?: number;
+  audio_count?: number;
+  document_count?: number;
 }
 
 class AuthorService {
@@ -68,6 +70,8 @@ class AuthorService {
       readerAgeGroup: row.book_reader_age_group,
       language: row.book_language,
       description: row.book_description,
+      audioCount: row.audio_count,
+      documentsCount: row.document_count,
     });
 
     return book;
@@ -135,6 +139,18 @@ class AuthorService {
         books.reader_age_group AS book_reader_age_group, 
         books.language AS book_language,
         books.description AS book_description,
+        (SELECT COUNT(*) 
+          FROM asset_files 
+          WHERE asset_files.entity_id = books.id 
+            AND asset_files.entity_type = 'book'
+    		AND asset_files.file_type = 'audio'
+        ) AS audio_count,
+        (SELECT COUNT(*) 
+          FROM asset_files 
+          WHERE asset_files.entity_id = books.id 
+            AND asset_files.entity_type = 'book'
+    		AND asset_files.file_type = 'text'
+        ) AS documents_count,
         asset_files.id AS image_id, 
         asset_files.file_url AS image_file_url, 
         asset_files.name AS image_name
