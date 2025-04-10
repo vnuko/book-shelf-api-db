@@ -11,7 +11,8 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-app.use("/static", express.static(path.join(__dirname, "../data")));
+const DATA_FOLDER = process.env.DATA_FOLDER || "data";
+app.use("/static", express.static(path.join(__dirname, "../" + DATA_FOLDER)));
 
 app.use(cors());
 

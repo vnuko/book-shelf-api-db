@@ -24,3 +24,5 @@ Thumbs.db
 # Optional: ignore package lock files (not racking them)
 package-lock.json
 yarn.lock
+
+data/
