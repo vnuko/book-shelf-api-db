@@ -30,6 +30,7 @@ interface DbRowData {
   book_reader_age_group?: string;
   book_language?: string;
   book_description?: string;
+  book_image?: string;
   image_id?: number;
   image_file_url?: string;
   image_name?: string;
@@ -72,6 +73,14 @@ class AuthorService {
       audioCount: row.audio_count,
       documentsCount: row.document_count,
     });
+
+    if (row.book_image) {
+      book.images = [
+        new AssetFile({
+          fileUrl: row.book_image,
+        }),
+      ];
+    }
 
     return book;
   }
@@ -149,6 +158,13 @@ class AuthorService {
             AND asset_files.entity_type = 'book'
     		AND asset_files.file_type = 'text'
         ) AS documents_count,
+        (SELECT asset_files.file_url 
+          FROM asset_files 
+          WHERE asset_files.entity_id = books.id 
+            AND asset_files.entity_type = 'book' 
+            AND asset_files.file_type = 'image' 
+          ORDER BY asset_files.id ASC LIMIT 1
+        ) AS book_image,
         asset_files.id AS image_id, 
         asset_files.file_url AS image_file_url, 
         asset_files.name AS image_name
@@ -168,12 +184,22 @@ class AuthorService {
     const firstRow = rows[0];
     const author = this.mapToAuthor(firstRow);
 
-    const books = rows.filter((row) => row.book_id).map(this.mapToBook);
-    const images = rows.filter((row) => row.image_id).map(this.mapToAssetFile);
+    const imageMap = new Map<number, any>();
+    const booksMap = new Map<number, any>();
 
-    author.books = books;
-    author.images = images;
-    author.bookCount = books.length;
+    rows.forEach((row) => {
+      if (row.image_id && !imageMap.has(row.image_id)) {
+        imageMap.set(row.image_id, this.mapToAssetFile(row));
+      }
+
+      if (row.book_id && !booksMap.has(row.book_id)) {
+        booksMap.set(row.book_id, this.mapToBook(row));
+      }
+    });
+
+    author.images = Array.from(imageMap.values());
+    author.books = Array.from(booksMap.values());
+    author.bookCount = booksMap.size;
 
     return author;
   }
